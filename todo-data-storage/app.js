@@ -56,7 +56,7 @@ app.delete('/api/todos/:id', (req, res, next) =>
 
 app.use((err, req, res, next) => {
     console.error(err)
-    res.status(err.status || 500).json({ error: err.message})
+    res.status(err.statusCode || 500).json({ error: err.message})
 })
 
 app.listen(3000)
