@@ -68,3 +68,39 @@ exports.update = (id, update) => {
 
 exports.remove = id => dbRun('DELETE FROM todo WHERE id = ?', id)
     .then(({ changes }) => changes === 1 ? id : null)
+
+
+function promisifyStatementRun(statement){
+    return function() {
+        return new Promise((resolve, reject) => {
+            statement.run.apply(statement, [
+                ...arguments,
+                function(err) {
+                    err ? reject(err) : resolve(this)
+                }
+            ])
+        })
+    }
+}
+
+const selectStatement = db.prepare('SELECT * FROM todo WHERE id = ?')
+const statementGet = util.promisify(selectStatement.get.bind(selectStatement))
+
+// 動的プレースホルダを用いたupdate()の実装
+exports.update = (id, update) => {
+    const setColumns = []
+    const values = []
+    for (const column of ['title', 'completed']) {
+        if (column in update) {
+            setColumns.push(`${column} = ?`)
+            values.push(`${update[column]}`)
+        }
+    }
+    values.push(id)
+    const statement = db.prepare(`UPDATE todo SET ${setColumns.join()} WHERE id = ?`)
+    return promisifyStatementRun(statement)(values)
+    .then(({ changes }) => changes === 1
+        ? statementGet(id).then(rowToTodo)
+        : null
+    )
+}
