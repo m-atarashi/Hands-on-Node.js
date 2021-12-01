@@ -2,12 +2,18 @@
   "name": "todo-data-storage",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "file-system": "node app",
     "sqlite": "node app",
-    "leveldb": "node app",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "leveldb": "node app"
+  },
+  "mocha": {
+    "spec": "test/mocha/**/*.js"
   },
   "keywords": [],
   "author": "",
@@ -18,5 +24,11 @@
     "level": "^7.0.1",
     "sqlite3": "^5.0.2",
     "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^9.1.3",
+    "nyc": "^15.1.0",
+    "sinon": "^12.0.1"
   }
 }

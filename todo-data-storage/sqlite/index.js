@@ -84,7 +84,7 @@ function promisifyStatementRun(statement){
 }
 
 const selectStatement = db.prepare('SELECT * FROM todo WHERE id = ?')
-const statementGet = util.promisify(selectStatement.get.bind(selectStatement))
+const statementGet = promisify(selectStatement.get.bind(selectStatement))
 
 // 動的プレースホルダを用いたupdate()の実装
 exports.update = (id, update) => {

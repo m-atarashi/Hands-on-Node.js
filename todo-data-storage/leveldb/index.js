@@ -6,7 +6,7 @@ const db = level(join(__dirname, 'leveldb'))
 
 exports.fetchAll = async () => {
     const result = []
-    for await (const data of db.createReadStream({gt: 'todo:', lt: 'todo;'})) {
+    for await (const data of db.createValueStream({gt: 'todo:', lt: 'todo;'})) {
         result.push(JSON.parse(data))
     }
     return result
@@ -25,7 +25,7 @@ exports.fetchByCompleted = async completed => {
 
 exports.create = todo => 
     db.batch()
-        .put(`todo:{todo.id}`, JSON.stringify(todo))
+        .put(`todo:${todo.id}`, JSON.stringify(todo))
         .put(`tpdp-completed-${todo.completed}:${todo.id}`, todo.id)
         .write()
 
@@ -49,14 +49,13 @@ exports.update = (id, update) => {
     )
 }
 
-exports.remove = id => {
+exports.remove = id => 
     db.get(`todo:${id}`).then(
         content => db.batch()
         .del(`todo:${id}`)
         .del(`todo-completed-true:${id}`)
         .del(`todo-completed-false:${id}`)
         .write()
-        .then(() => id)
-        , err => err.notFound ? null : Promise.reject(err)
-    )
-}
+        .then(() => id),
+    err => err.notFound ? null : Promise.reject(err)
+)
