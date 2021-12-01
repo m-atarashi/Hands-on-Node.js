@@ -12,7 +12,7 @@ exports.fetchAll = async () => {
     )
 }
 
-exports.fetchCompleted = completed => exports.fetchAll()
+exports.fetchByCompleted = completed => exports.fetchAll()
     .then(all => all.filter(todo => todo.completed === completed))
 
 exports.create = todo => writeFile(`${__dirname}/${todo.id}.json`, JSON.stringify(todo))
