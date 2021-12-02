@@ -11,7 +11,7 @@ app.get('/api/todos', (req, res, next) => {
         return dataStorage.fetchAll().then(todos => res.json(todos), next)
     }
     const completed = req.query.completed === 'true'
-    dataStorage.fetchByCompleted(completed).then(todos => res.json(todoos), next)
+    dataStorage.fetchByCompleted(completed).then(todos => res.json(todos), next)
 })
 
 app.post('/api/todos', (req, res, next) => {

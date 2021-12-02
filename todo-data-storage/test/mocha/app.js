@@ -3,7 +3,7 @@ const chai = require('chai')
 const sinon = require('sinon')
 const fileSystem = require('../../file-system')
 
-process.env.npm_lifecycle_event = 'file_system'
+process.env.npm_lifecycle_event = 'file-system'
 // app.jsでデフォルトエキスポートしたやつ？app.listen(3000)？
 const app = require('../../app')
 
@@ -29,7 +29,7 @@ describe('app', () => {
                 assert.deepEqual(res.body, todos)
             })
             it('fetchAllが失敗したらエラーが返ってほしい', async() => {
-                sinon.stub(fileSystem, 'fetchAll').rejects(new Error('fetchAll失敗ぺこ……'))
+                sinon.stub(fileSystem, 'fetchAll').rejects(new Error('fetchAll()失敗ぺこ……'))
                 
                 const res = await chai.request(app).get('/api/todos')
                 assert.strictEqual(res.status, 500)
@@ -47,7 +47,7 @@ describe('app', () => {
 
                 for (const completed of [true, false]){
                     const res = await chai.request(app)
-                    .get('api/todos')
+                    .get('/api/todos')
                     .query({completed})
 
                     assert.strictEqual(res.status, 200)
@@ -57,7 +57,7 @@ describe('app', () => {
             })
 
             it('fetchByCompleted失敗', async () => {
-                sinon,stub(fileSystem, 'fetchByCompleted')
+                sinon.stub(fileSystem, 'fetchByCompleted')
                 .rejects(new Error('fetchBycompleted失敗でござる…'))
 
                 const res = await chai.request(app)
