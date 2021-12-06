@@ -109,4 +109,114 @@ describe('app', () => {
             assert.deepEqual(res.body, {error: 'create()失敗だぞ'})
         })
     })
+
+    //練習問題いいいいいいいいいい
+    describe('PUT /api/todos/:id/completed', () => {
+        it('update()が成功したらtodoを返す', async () => {
+            const todo = {id: 'a', title: 'gura', completed: true}
+
+            sinon.stub(fileSystem, 'update').resolves(todo)
+
+            const res = await chai.request(app)
+            .put('/api/todos/a/completed')
+
+            assert.strictEqual(res.status, 200)
+            assert.deepEqual(res.body, todo)
+            assert.calledWith(fileSystem.update, 'a', {completed: true})
+        })
+
+        it('todoが存在しない場合エラーを返す', async () => {
+            sinon.stub(fileSystem, 'update').resolves()//nullでも同じ
+
+            const res = await chai.request(app)
+            .put('/api/todos/a/completed')
+
+            assert.strictEqual(res.status, 404)
+            assert.deepEqual(res.body, {error: 'ToDo not found'})
+            assert.calledWith(fileSystem.update, 'a', {completed: true})
+        })
+
+        it('update()が失敗したらエラーを返す', async () => {
+            sinon.stub(fileSystem, 'update').rejects(new Error('エラーぺこな！'))
+
+            const res = await chai.request(app)
+            .put('/api/todos/a/completed')
+
+            assert.strictEqual(res.status, 500)
+            assert.deepEqual(res.body, {error: 'エラーぺこな！'})
+            assert.calledWith(fileSystem.update, 'a', {completed: true})
+        })
+    })
+
+    describe('DELETE /api/todos/:id/completed', () => {
+        it('update()が成功したらtodoを返す', async () => {
+            const todo = {id: 'a', title: 'gura', completed: true}
+
+            sinon.stub(fileSystem, 'update').resolves(todo)
+
+            const res = await chai.request(app)
+            .delete('/api/todos/a/completed')
+
+            assert.strictEqual(res.status, 200)
+            assert.deepEqual(res.body, todo)
+            assert.calledWith(fileSystem.update, 'a', {completed: false})
+        })
+
+        it('todoが存在しない場合エラーを返す', async () => {
+            sinon.stub(fileSystem, 'update').resolves()
+
+            const res = await chai.request(app)
+            .delete('/api/todos/a/completed')
+
+            assert.strictEqual(res.status, 404)
+            assert.deepEqual(res.body, {error: 'ToDo not found'})
+            assert.calledWith(fileSystem.update, 'a', {completed: false})
+        })
+
+        it('update()が失敗したらエラーを返す', async () => {
+            sinon.stub(fileSystem, 'update').rejects(new Error('エラーぺこな！'))
+
+            const res = await chai.request(app)
+            .delete('/api/todos/a/completed')
+
+            assert.strictEqual(res.status, 500)
+            assert.deepEqual(res.body, {error: 'エラーぺこな！'})
+            assert.calledWith(fileSystem.update, 'a', {completed: false})
+        })
+    })
+
+    describe('DELETE /api/todos/:id', () => {
+        it('remove()が成功したとき', async () => {
+            sinon.stub(fileSystem, 'remove').resolves('a')
+
+            const res = await chai.request(app)
+            .delete('/api/todos/a')
+
+            assert.strictEqual(res.status, 204)
+            assert.deepEqual(res.body, {})
+            assert.calledWith(fileSystem.remove, 'a')
+        })
+
+        it('指定したidがnullだったとき', async () => {
+            sinon.stub(fileSystem, 'remove').resolves(null)
+
+            const res = await chai.request(app)
+            .delete('/api/todos/a')
+
+            assert.strictEqual(res.status, 404)
+            assert.deepEqual(res.body, {error: 'Todo not found'})
+            assert.calledWith(fileSystem.remove, 'a')
+        })
+
+        it('remove()が失敗したとき', async () => {
+            sinon.stub(fileSystem, 'remove').rejects(new Error('エラーなんだワ'))
+
+            const res = await chai.request(app)
+            .delete('/api/todos/marine')
+
+            assert.strictEqual(res.status, 500)
+            assert.deepEqual(res.body, {error: 'エラーなんだワ'})
+            assert.calledWith(fileSystem.remove, 'marine')
+        })
+    })
 })

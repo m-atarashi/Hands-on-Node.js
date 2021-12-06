@@ -5,8 +5,7 @@ const uuid = require('uuid')
 const request = require('supertest')
 
 process.env.npm_lifecycle_event = 'file-system'
-const app =require('../../app')
-
+const app = require('../../app')
 jest.mock('../../file-system')
 jest.mock('uuid')
 
@@ -109,6 +108,112 @@ describe('app', () => {
 
             expect(res.statusCode).toBe(500)
             expect(res.body).toEqual({error: '失敗しゅばああああああああ'})
+        })
+    })
+    
+    describe('POST /api/todos/:id/completed', () =>{
+        test('update()が成功したらTodoを返す', async () => {
+            const todo = {id: 'a', title: 'gura', completed: true}
+            fileSystem.update.mockResolvedValue(todo)
+
+            const res = await request(app)
+            .put('/api/todos/a/completed')
+
+            expect(res.statusCode).toBe(200)
+            expect(res.body).toEqual(todo)
+            expect(fileSystem.update).toHaveBeenCalledWith('a', {completed: true})
+        })
+
+        test('ToDoが存在しない場合エラーを返す', async () =>{
+            fileSystem.update.mockResolvedValue()//null
+
+            const res = await request(app)
+            .put('/api/todos/a/completed')
+
+            expect(res.statusCode).toBe(404)
+            expect(res.body).toEqual({error: 'ToDo not found'})
+            expect(fileSystem.update).toHaveBeenCalledWith('a', {completed: true})
+        })
+
+        test('update()が失敗した場合、エラーを返す', async () => {
+            fileSystem.update.mockRejectedValue(new Error('Error'))
+
+            const res = await request(app)
+            .put('/api/todos/a/completed')
+
+            expect(res.statusCode).toBe(500)
+            expect(res.body).toEqual({error: 'Error'})
+            expect(fileSystem.update).toHaveBeenCalledWith('a', {completed: true})
+        })
+    })
+    describe('DELETE /api/todos/:id/completed', () =>{
+        test('update()が成功したらTodoを返す', async () => {
+            const todo = {id: 'a', title: 'gura', completed: true}
+            fileSystem.update.mockResolvedValue(todo)
+
+            const res = await request(app)
+            .delete('/api/todos/a/completed')
+
+            expect(res.statusCode).toBe(200)
+            expect(res.body).toEqual(todo)
+            expect(fileSystem.update).toHaveBeenCalledWith('a', {completed: false})
+        })
+
+        test('ToDoが存在しない場合エラーを返す', async () =>{
+            fileSystem.update.mockResolvedValue()
+
+            const res = await request(app)
+            .delete('/api/todos/a/completed')
+
+            expect(res.statusCode).toBe(404)
+            expect(res.body).toEqual({error: 'ToDo not found'})
+            expect(fileSystem.update).toHaveBeenCalledWith('a', {completed: false})
+        })
+
+        test('update()が失敗した場合、エラーを返す', async () => {
+            fileSystem.update.mockRejectedValue(new Error('Error'))
+
+            const res = await request(app)
+            .delete('/api/todos/a/completed')
+
+            expect(res.statusCode).toBe(500)
+            expect(res.body).toEqual({error: 'Error'})
+            expect(fileSystem.update).toHaveBeenCalledWith('a', {completed: false})
+        })
+    })
+
+    describe('DELETE /api/todos/:id', () => {
+        test('removeが成功したとき', async () => {
+            fileSystem.remove.mockResolvedValue('a')
+
+            const res = await request(app)
+            .delete('/api/todos/a')
+
+            expect(res.statusCode).toBe(204)
+            expect(res.body).toEqual({})
+            expect(fileSystem.remove).toHaveBeenCalledWith('a')
+        })
+
+        test('idがnullだったとき', async () => {
+            fileSystem.remove.mockResolvedValue(null)
+
+            const res = await request(app)
+            .delete('/api/todos/b')
+
+            expect(res.statusCode).toBe(404)
+            expect(res.body).toEqual({error: 'Todo not found'})
+            expect(fileSystem.remove).toHaveBeenCalledWith('b')
+        })
+
+        test('remove()が失敗したとき', async () => {
+            fileSystem.remove.mockRejectedValue(new Error('えらーだにぇ…おじたん…'))
+
+            const res = await request(app)
+            .delete('/api/todos/a')
+
+            expect(res.statusCode).toBe(500)
+            expect(res.body).toEqual({error: 'えらーだにぇ…おじたん…'})
+            expect(fileSystem.remove).toHaveBeenCalledWith('a')
         })
     })
 })
