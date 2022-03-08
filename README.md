@@ -1,1 +1,1 @@
-# hands-on-nodejs
+Practice codes for "Hands-on Node.js."
